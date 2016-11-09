@@ -8,15 +8,12 @@ export default class StatsChart extends Component {
 
 	}
 
-
   render() {
 		// console.log('from stats', this.props.data.categories);
-		console.log(this.props.data);
     return (
 			<div style={{width: "960px"}}>
 				<h2>Prod: {this.props.title}</h2>
 				<div> shart</div>
-				{JSON.stringify(this.props.data, 2)}
       </div>
     );
   }

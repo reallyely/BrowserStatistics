@@ -14,64 +14,66 @@ import StatsTable from './StatsTable.jsx';
 import FilterControls from './Controls.jsx';
 import './App.css';
 
-// App component - represents the whole app
 class App extends Component {
 	constructor(props) {
 		super(props)
+
+		this.state = {
+			activeFilters: {browsers: [], customers: []}
+		}
+		this.handleClick = this.handleClick.bind(this);
 	}
 
+	getUniqueList(arrayOfObjs, field) {
+		return _.uniq(_.map(arrayOfObjs, field))
+	}
+
+	handleClick(category, value) {
+		Meteor.call('browserstatistics.update.filters',
+			category, value, this.state.activeFilters,
+			(err, val) => this.setState({ activeFilters: val }))
+
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if (!nextProps.loading) {
+			Meteor.call('browserstatistics.get.filters',
+				nextProps.BrowserStatistics,
+				(err, filters) => this.setState({filters}) || console.log(err)
+			)
+		}
+	}
 
   render() {
-		console.log(this.props.Prods);
-		let prods = _.uniq(_.map(this.props.Prods, 'prod'))
-		let browsers = _.uniq(_.map(this.props.Browsers, 'name'))
-		let customers = _.uniq(_.map(this.props.Customers, 'name'))
-
-    return (
-			<div className="container">
-				<h1>Browser Stats:</h1>
-				<FilterControls
-					filterCategories={['Prod', 'Customers', 'Browsers']}
-					filterValues={{
-						Prod: prods,
-						Customers: customers,
-						Browsers: browsers
-					}}/>
-					<StatsChart title="Stats Chart" data={this.props.BrowserStatistics} />
-					<StatsTable
-						title="Stats Table"
-						data={this.props.BrowserStatistics}
-						columns={['Prod', 'Customer', 'Browser', 'Total','30 Day', '90 Day']}
-						keys={['prod', 'customer', 'name', 'total','30days', '90days']}
+		if (! this.props.loading) {
+			return (
+				<div className="container">
+					<h1>Browser Stats:</h1>
+						<FilterControls
+							filters={this.state.filters}
+							activeFilters={this.state.activeFilters}
+							onFilter={this.handleClick}
 						/>
-      </div>
-    );
+						<StatsChart title="Stats Chart" data={this.props.BrowserStatistics} />
+						<StatsTable
+							title="Stats Table"
+							data={this.props.BrowserStatistics}
+							columns={['Prod', 'Customer', 'Browser', 'Total','30 Day', '90 Day', '180 Day']}
+							keys={['prod_id', 'customer_id', 'browser_name', 'total','30days', '90days', '180days']}
+						/>
+				</div>
+			);
+		} else {
+			return null;
+		}
   }
 }
 
 export default createContainer(() => {
+	let subscription = Meteor.subscribe('browserstatistics');
+	let loading = !subscription.ready()
   return {
-    BrowserStatistics: BrowserStatistics.find({}, {sort: ["prod", "customer"]}).fetch(),
-		Browsers: Browsers.find({}).fetch(),
-		Customers: Customers.find({}).fetch(),
-		OperatingSystems: OperatingSystems.find({}).fetch(),
-		Prods: Customers.find({}, {fields: {prod: 1, _id: 0}, reactive:false}).fetch()
+		BrowserStatistics: BrowserStatistics.find({}, {sort: ["prod_id", "customer_id"]}).fetch(),
+		loading,
   };
 }, App);
-
-//
-// Customers: BrowserStatistics.find(
-// 	{$and: [
-// 		{'categories.category': {$eq: "browsersbycustomer"}},
-// 		{'categories.data.customer': {$exists: true}}
-// 	]},
-// 	{fields: {'categories.data.customer': 1}}
-// ).map(doc => {
-// 	return (
-// 		_.flatten(doc.categories.map(cat => {
-// 			return _.compact(cat.data.map(dat => {
-// 				return dat.customer
-// 			}))
-// 		}))
-// 	)
-// })

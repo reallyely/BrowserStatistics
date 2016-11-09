@@ -9,30 +9,9 @@ class StatsTable extends React.Component {
 		// this.renderHeaders = this.renderHeaders.bind(this)
 		// this.renderRows = this.renderRows.bind(this)
 	}
-	// renderHeaders(columns) {
-	// 	_.keys(columns).map((columnName, i) => {
-	// 		return (<TableHeaderColumn key={i}>{columnName}</TableHeaderColumn>)
-	// 	})
-	// }
-	//
-	// renderRows(data, columns) {
-	// 	data.map(datum => {
-	// 		_.keys(columns).map(colName => {
-	// 			return (
-	// 				<TableRow key={colName}>
-	// 					<TableRowColumn>
-	// 						{colName}
-	// 					</TableRowColumn>
-	// 				</TableRow>
-	// 			)
-	// 		});
-	// 	})
-	// }
 
 	render() {
 		console.log('from stats table', this.props.data);
-		// console.log(records);
-
 		return (
 			<div>
 				<h2>{this.props.title}</h2>
@@ -41,7 +20,7 @@ class StatsTable extends React.Component {
 						<TableRow>
 							{
 								this.props.columns.map(column => (
-									<TableHeaderColumn>{column}</TableHeaderColumn>
+									<TableHeaderColumn key={column}>{column}</TableHeaderColumn>
 								))
 							}
 						</TableRow>
@@ -50,15 +29,15 @@ class StatsTable extends React.Component {
 						{
 							this.props.data.map((datum, i) => {
 								return (
-									datum.browsers.map((browserDat, i) => (
-										<TableRow key={i}>
+									<TableRow key={i}>
 										{
 											this.props.keys.map(key => (
-												<TableRowColumn key={key}>{browserDat[key] || null}</TableRowColumn>
+												<TableRowColumn key={`${i}_${key}`}>
+													{datum[key]}
+												</TableRowColumn>
 											))
 										}
-										</TableRow>
-									))
+									</TableRow>
 								)
 							})
 						}
@@ -70,3 +49,13 @@ class StatsTable extends React.Component {
 }
 
 export default StatsTable;
+
+// datum.browsers.map((browserDat, i) => (
+// 	<TableRow key={i}>
+// 	{
+// 		this.props.keys.map(key => (
+// 			<TableRowColumn key={key}>{browserDat[key] || null}</TableRowColumn>
+// 		))
+// 	}
+// 	</TableRow>
+// ))

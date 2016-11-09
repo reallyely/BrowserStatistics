@@ -1,4 +1,5 @@
 import watch from 'node-watch';
+
 import { read } from 'excel-data';
 import { Meteor } from 'meteor/meteor';
 
@@ -16,9 +17,9 @@ Meteor.startup(() => {
 		if (filename.match(/BrowserStatistics/i)) {
 			let prod = /(\d+)\.xls$/.exec(filename)[1]
 
-			if (BrowserStatistics.find({prod: prod})) {
-				console.log(`removing prod: ${prod}`);
-				BrowserStatistics.remove({prod: prod})
+			if (BrowserStatistics.find({prod_id: prod})) {
+				console.log(`removing prod_id: ${prod}`);
+				BrowserStatistics.remove({prod_id: prod})
 				Browsers.remove({})
 				Customers.remove({})
 				OperatingSystems.remove({})
@@ -26,46 +27,37 @@ Meteor.startup(() => {
 
 			read(filename).then(Meteor.bindEnvironment(
 				(result) => {
+					let flag = 0
+					if (flag === 1) {
+						console.log(result)
+						let flag = 1
+					}
 
 					let browsers = result.browsersbycustomer.data
 					let operatingSystems = result.operatingsystems.data
 
 					browsers.forEach(record => {
-						BrowserStatistics.upsert(
-							{customer:record.customer, prod},
+						let [browser, browserName, browserVer] = /^(\D*)\s(.*)/.exec(record.browser)
+						BrowserStatistics.insert(
 							{
-								$setOnInsert: {customer: record.customer},
-								$set: {prod: prod},
-								$addToSet: {
-									browsers: {
-										name: record.browser,
-										customer: record.customer,
-										prod: prod,
-										total: record.total,
-										"mtd": record["mtd"],
-										"ytd": record["ytd"],
-										"365days": record["365days"],
-										"180days": record["180days"],
-										"90days": record["90days"],
-										"30days": record["30days"]
-									}
-								}
+								browser_id: record.browser,
+								customer_id: record.customer,
+								prod_id: prod,
+								browser_name: browserName,
+								browser_version: browserVer,
+								total: record.total,
+								"mtd": record["mtd"],
+								"ytd": record["ytd"],
+								"365days": record["365days"],
+								"180days": record["180days"],
+								"90days": record["90days"],
+								"30days": record["30days"]
 							}
-						)
-
-						Browsers.upsert({name: record.browser}, {name: record.browser})
-
-						Customers.upsert(
-							{name: record.customer,prod: prod},
-							{name: record.customer,prod: prod}
 						)
 					})
 
 					operatingSystems.forEach(record => {
-						OperatingSystems.upsert(
-							{name: record.operatingsystem},
-							{name: record.operatingsystem}
-						)
+
 
 						OperatingStatistics.upsert(
 							{prod: prod},

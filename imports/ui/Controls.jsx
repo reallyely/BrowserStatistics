@@ -7,55 +7,36 @@ import _ from 'lodash';
 const styles = {
 	default: {
 		margin: '8px'
-	},
-	isActive: {
-		backgroundColor: 'red'
 	}
 }
-
+const activeColor = '#2196F3'
 export default class FilterControls extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			activeFilters: []
-		}
+
 		this.renderFilters = this.renderFilters.bind(this);
-		this.handleClick = this.handleClick.bind(this);
-	}
-
-	handleClick(value) {
-		var foundIndex = _.indexOf(this.state.activeFilters, value)
-		console.log(foundIndex);
-		if (foundIndex >= 0) {
-			var newValue = _.without(this.state.activeFilters, value)
-		} else {
-			var newValue = _.concat(this.state.activeFilters, value)
-		}
-
-		this.setState({
-			activeFilters: newValue
-		})
 	}
 
 	renderFilters() {
-		console.log(this.state.activeFilters);
-		// console.log(this.props.filterCategories);
+		console.log(this.props.filters);
 		return (
-			this.props.filterCategories.map(
-				(category, i) => {return (
+			_.keys(this.props.filters).map(
+				(category, i) => (
 					<div key={i}>{category}
-					{
-						this.props.filterValues[category].map( (value, i) =>
-							<RaisedButton
-								key={i}
-								label={value}
-								onClick={e => this.handleClick(value)}
-								style={styles.default || (_.find(this.state.activeFilters, value) && styles.isActive)}
-							/>
-						)
-					}
+						{
+							this.props.filters[category].map( (value, i) =>
+								<RaisedButton
+									key={i}
+									label={value}
+									onClick={e => this.props.onFilter(category, value)}
+									backgroundColor={
+										_.indexOf(this.props.activeFilters[category], value) >= 0 && activeColor
+									}
+								/>
+							)
+						}
 					</div>
-				)}
+				)
 			)
 		)
 	}
@@ -76,6 +57,11 @@ export default class FilterControls extends React.Component {
 }
 
 FilterControls.propTypes = {
-	filterCategories: React.PropTypes.array,
-	filterValues: React.PropTypes.object
+	filters: React.PropTypes.object,
+	activeFilters: React.PropTypes.object,
 }
+
+// activeFilters = {
+// 	browserName: ['Android', 'BlackBerry'],
+// 	customerName: ['asodfihas', 'asdfh']
+// }
