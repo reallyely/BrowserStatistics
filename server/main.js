@@ -10,55 +10,56 @@ import { Customers } from '../imports/api/customers.js';
 import { Browsers } from '../imports/api/browsers.js';
 import { OperatingSystems } from '../imports/api/operatingSystems.js';
 
+let sheetsPath = 'C:\\MeteorTest\\BrowserStats\\sheets'
 Meteor.startup(() => {
 	// When a a file in the sheets directory changes, automatically run script to update DB with new information
 	let wrappedWatch = Meteor.wrapAsync(watch);
-	wrappedWatch('C:/MeteorTest/BrowserStats/sheets', filename => {
-		if (filename.match(/BrowserStatistics/i)) {
+	wrappedWatch(sheetsPath, filename => {
+		console.log(filename)
+		console.log(filename.startsWith('BrowserStatistics'))
+		if (filename.startsWith(`${sheetsPath}\\BrowserStatistics`)) {
 			let prod = /(\d+)\.xls$/.exec(filename)[1]
 
 			if (BrowserStatistics.find({prod_id: prod})) {
 				console.log(`removing prod_id: ${prod}`);
 				BrowserStatistics.remove({prod_id: prod})
-				Browsers.remove({})
-				Customers.remove({})
-				OperatingSystems.remove({})
+				// Browsers.remove({})
+				// Customers.remove({})
+				// OperatingSystems.remove({})
 			}
 
 			read(filename).then(Meteor.bindEnvironment(
 				(result) => {
-					let flag = 0
-					if (flag === 1) {
-						console.log(result)
-						let flag = 1
-					}
-
 					let browsers = result.browsersbycustomer.data
 					let operatingSystems = result.operatingsystems.data
 
 					browsers.forEach(record => {
-						let [browser, browserName, browserVer] = /^(\D*)\s(.*)/.exec(record.browser)
+						if (Array.isArray(record.browser.match(/^(\D*)\s(.*)/))) {
+							var [browser, browserName, browserVer] = /^(\D*)\s(.*)/.exec(record.browser)
+						} else {
+							var browserName = record.browser
+							var browserVer = 0
+						}
+
 						BrowserStatistics.insert(
 							{
 								browser_id: record.browser,
 								customer_id: record.customer,
 								prod_id: prod,
 								browser_name: browserName,
-								browser_version: browserVer,
-								total: record.total,
-								"mtd": record["mtd"],
-								"ytd": record["ytd"],
-								"365days": record["365days"],
-								"180days": record["180days"],
-								"90days": record["90days"],
-								"30days": record["30days"]
+								browser_version: Number(browserVer),
+								total: Number(record.total),
+								"mtd": Number(record["mtd"]),
+								"ytd": Number(record["ytd"]),
+								"365days": Number(record["365days"]),
+								"180days": Number(record["180days"]),
+								"90days": Number(record["90days"]),
+								"30days": Number(record["30days"]),
 							}
 						)
 					})
 
 					operatingSystems.forEach(record => {
-
-
 						OperatingStatistics.upsert(
 							{prod: prod},
 							{
@@ -78,64 +79,9 @@ Meteor.startup(() => {
 							}
 						);
 					});
-
-
 				}
 			)).catch(err=>console.log(err));
 		}
 	})
 
 });
-
-//
-// Meteor.publish('browserstats', () => {
-// 	return BrowserStatistics.find({})
-// })
-
-// 		prods: [
-// 			{name: 'name', customers: ['custs']}
-// 		]
-
-// 		customers: [
-// 			{name: 'name', prod: 'prod'},
-// 		]
-
-// 		browsers: [
-// 			'chrome', 'ff'
-// 		]
-
-// 		os: [
-// 			'iphone', 'win 7'
-// 		]
-
-// v2
-// browserstats: [
-// 	{
-// 		prod: 1,
-// 		customer: 'CustomerName',
-// 		browsers: [
-// 			{name: 'chrome', total:123, mtd: 0, ytd: 23},
-// 			{name: 'edge', ...}
-// 		],
-// 		oss: [
-//			{name: 'iPhone', total: 21, mtd: 203},
-// 			{}
-//	 ]
-// 	}
-// ]
-
-// browserstats: [
-// 	{
-// 		prod: 1,
-// 		data: [
-// 			{
-// 				customer: 'Customer 1',
-// 				browsers: [
-// 					{name: 'chrome', total:123, mtd: 0, ytd: 23},
-// 					{name: 'edge', ...}
-// 				],
-// 				os: [{name: 'iPhone', count: 21}, {}]
-// 			},
-// 		]
-// 	}
-// ]

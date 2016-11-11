@@ -13,6 +13,19 @@ export default class StatsChart extends Component {
     return (
 			<div style={{width: "960px"}}>
 				<h2>Prod: {this.props.title}</h2>
+				<div>
+					{
+						this.props.keys.map(col => {
+							return (
+								_.sumBy(this.props.data, datum => {
+									if (datum.browser_name === 'Chrome') {
+										return datum.total
+									}
+								})
+							)
+						})
+					}
+				</div>
 				<div> shart</div>
       </div>
     );

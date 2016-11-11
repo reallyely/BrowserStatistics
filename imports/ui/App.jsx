@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-
+import MicroBarChart from 'react-micro-bar-chart';
 import _ from 'lodash';
 
 // API
@@ -54,12 +54,43 @@ class App extends Component {
 							activeFilters={this.state.activeFilters}
 							onFilter={this.handleClick}
 						/>
-						<StatsChart title="Stats Chart" data={this.props.BrowserStatistics} />
+						<StatsChart title="Stats Chart" data={this.props.BrowserStatistics}
+							columns={['Total']}
+							keys={['total']}
+						/>
 						<StatsTable
 							title="Stats Table"
 							data={this.props.BrowserStatistics}
-							columns={['Prod', 'Customer', 'Browser', 'Total','30 Day', '90 Day', '180 Day']}
-							keys={['prod_id', 'customer_id', 'browser_name', 'total','30days', '90days', '180days']}
+							columnMeta={[
+								{
+									"columnName": "prod_id",
+									"customHeaderComponent": HeaderComponent,
+									"displayName": 'Prod'
+								},
+								{
+									"columnName": "browser_name",
+									"customHeaderComponent": HeaderComponent,
+									"displayName": 'Browser Name'
+								},
+								{
+									"columnName": "customer_id",
+									"customHeaderComponent": HeaderComponent,
+									"displayName": 'Customer'
+								},
+								{
+									"columnName": "browser_version",
+									"customHeaderComponent": HeaderComponent,
+									"displayName": 'Browser Version'
+								},
+								{
+									"columnName": "180days",
+									"customComponent": MiniGraph,
+									"displayName": "Over Time"
+								},
+							]
+						}
+							columns={['Prod', 'Customer', 'Browser', 'Version', 'Total', '180 Days']}
+							keys={['prod_id', 'customer_id', 'browser_name','browser_version', 'total', '180days']}
 						/>
 				</div>
 			);
@@ -77,3 +108,55 @@ export default createContainer(() => {
 		loading,
   };
 }, App);
+
+
+class HeaderComponent extends React.Component {
+	constructor(props) {
+		super(props)
+		this.textOnClick = this.textOnClick.bind(this)
+		this.filterText = this.filterText.bind(this)
+	}
+  textOnClick(e) {
+    e.stopPropagation();
+  }
+
+  filterText(e) {
+    this.props.filterByColumn(e.target.value, this.props.columnName)
+  }
+
+  render(){
+		console.log(this.props);
+    return (
+      <span>
+        <div><strong>{this.props.displayName}</strong></div>
+        <input type='text' onChange={this.filterText} onClick={this.textOnClick} />
+      </span>
+    );
+  }
+}
+
+class MiniGraph extends React.Component {
+	constructor(props) {
+		super(props)
+
+	}
+
+	render() {
+		keys = ['180days', '90days', '30days']
+		data = keys.map(key => {
+			return this.props.rowData[key]
+		})
+		console.log(data);
+		return (
+			<div>
+				<MicroBarChart
+					tooltip
+					data={data}
+					fillColor="rgb(71, 71, 209)"
+					fillColor="rgb(71, 155, 209)"
+					tipTemplate={(d, i, data) => `${keys[i]}: ${d}`}
+					/>
+			</div>
+		)
+	}
+}

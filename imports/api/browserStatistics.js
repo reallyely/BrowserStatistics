@@ -10,6 +10,9 @@ const filterSchema = {
 	// customers: 'customer_id'
 }
 
+// mutate this to track state for db calls??
+let filterState = {}
+
 function getFilterValues(data) {
 	return _.reduce(this.filterSchema, (obj, field, key) => {
 		console.log(obj, key, data, field);
@@ -21,7 +24,7 @@ function getFilterValues(data) {
 if (Meteor.isServer) {
   // This code only runs on the server
   Meteor.publish('browserstatistics', (filter) => {
-    return BrowserStatistics.find();
+    return BrowserStatistics.find(filterState);
   });
 }
 
@@ -33,9 +36,8 @@ Meteor.methods({
 				obj[key] = _.uniq(_.map(data, field))
 				return obj
 			}, {});
-			return out
+		return out
 	},
-
 	'browserstatistics.update.filters'(filterCategory, filterValue, previousState) {
 		var state = previousState
 		var foundIndex = _.indexOf(state[filterCategory], filterValue)
@@ -44,9 +46,25 @@ Meteor.methods({
 		} else {
 			var newValue = _.concat(state[filterCategory], filterValue)
 		}
-		state[filterCategory] = newValue
 
+		state[filterCategory] = newValue
+		filterState = state
+		console.log(filterState);
 		return state
 	},
+	getBrowserData( filter ) {
+		let group = {
+			_id: {
+				browser: '$browser'
+			},
+			total: {
+				$sum: '$total'
+			}
+		}
+		return BrowserStatistics.aggregate(
+			{ $match: 'Chrome'},
+			{ $group: group}
+		)
+	}
 
 })

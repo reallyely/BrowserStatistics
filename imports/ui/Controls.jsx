@@ -45,8 +45,6 @@ export default class FilterControls extends React.Component {
 		return (
 			<Card>
 				<CardActions>
-					<TextField hintText="Type to filter" fullWidth={true}/>
-					<br />
 					{this.renderFilters()}
 				</CardActions>
 				<CardText>
