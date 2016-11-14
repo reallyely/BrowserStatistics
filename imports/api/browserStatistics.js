@@ -15,7 +15,6 @@ let filterState = {}
 
 function getFilterValues(data) {
 	return _.reduce(this.filterSchema, (obj, field, key) => {
-		console.log(obj, key, data, field);
 		return obj[key] = _.uniq(_.map(data, field))
 	}
 	, {})

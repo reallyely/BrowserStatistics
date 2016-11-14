@@ -26,7 +26,7 @@ export default class StatsChart extends Component {
 						})
 					}
 				</div>
-				<div> shart</div>
+				<div>shart</div>
       </div>
     );
   }

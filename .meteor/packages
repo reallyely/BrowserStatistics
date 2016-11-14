@@ -19,5 +19,5 @@ shell-server@0.2.1            # Server-side component of the `meteor shell` comm
 
 insecure@1.0.7                # Allow all DB writes from clients (for prototyping)
 react-meteor-data
-ecmascript
+ecmascript@0.5.9
 jcbernack:reactive-aggregate

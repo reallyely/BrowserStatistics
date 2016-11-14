@@ -1,3 +1,4 @@
+// TODO: Normalize data trends against total hits
 import watch from 'node-watch';
 
 import { read } from 'excel-data';
@@ -15,8 +16,7 @@ Meteor.startup(() => {
 	// When a a file in the sheets directory changes, automatically run script to update DB with new information
 	let wrappedWatch = Meteor.wrapAsync(watch);
 	wrappedWatch(sheetsPath, filename => {
-		console.log(filename)
-		console.log(filename.startsWith('BrowserStatistics'))
+		BrowserStatistics.remove({})
 		if (filename.startsWith(`${sheetsPath}\\BrowserStatistics`)) {
 			let prod = /(\d+)\.xls$/.exec(filename)[1]
 
@@ -47,10 +47,10 @@ Meteor.startup(() => {
 								customer_id: record.customer,
 								prod_id: prod,
 								browser_name: browserName,
-								browser_version: Number(browserVer),
+								browser_version: browserVer,
 								total: Number(record.total),
-								"mtd": Number(record["mtd"]),
-								"ytd": Number(record["ytd"]),
+								mtd: Number(record.mtd),
+								ytd: Number(record.ytd),
 								"365days": Number(record["365days"]),
 								"180days": Number(record["180days"]),
 								"90days": Number(record["90days"]),
@@ -68,12 +68,12 @@ Meteor.startup(() => {
 									operatingsystems: {
 										name: record.operatingsystem,
 										total: record.total,
-										"MTD": record["mtd"],
-										"YTD": record["ytd"],
-										"365Days": record["365days"],
-										"180Days": record["180days"],
-										"90Days": record["90days"],
-										"30Days": record["30days"]
+										mtd: record.mtd,
+										ytd: record.ytd,
+										"365days": record["365days"],
+										"180days": record["180days"],
+										"90days": record["90days"],
+										"30days": record["30days"]
 									}
 								}
 							}
