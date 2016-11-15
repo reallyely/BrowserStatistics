@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import MicroBarChart from 'react-micro-bar-chart';
 import _ from 'lodash';
 
 // API
@@ -58,7 +57,7 @@ class App extends Component {
 export default createContainer(({params}) => {
 	let subscription = Meteor.subscribe('browserstatistics');
 	let loading = !subscription.ready()
-	let browserStats = BrowserStatistics.find({}, {sort: ["prod_id", "customer_id"]}).fetch()
+	let browserStats = BrowserStatistics.find({}, {sort: ["browser_id"]}).fetch()
   return {
 		BrowserStatistics: browserStats,
 		loading,

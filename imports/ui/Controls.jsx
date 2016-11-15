@@ -44,7 +44,8 @@ export default class FilterControls extends React.Component {
 
 	render() {
 		return (
-			<Card>
+			<Card
+				style={{backgroundColor:''}}>
 				<CardActions>
 					{this.renderFilters()}
 				</CardActions>

@@ -1,3 +1,21 @@
 body {
-	font-family: 'Roboto', sans-serif;
+	font-size: 1.2em;
+  font-family: 'Raleway', sans-serif;
+	background: radial-gradient(circle, #D6C0BA 0%,#BEA7A7 100%);
+}
+
+h1, td {
+	color: #413D45;
+}
+
+.red {
+  background-color: #e2625d;
+}
+
+.green {
+  background-color: #B1ED77;
+}
+
+.teal {
+  background-color: #b6d7e3;
 }

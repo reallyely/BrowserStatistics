@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import StatsTable from './StatsTable';
 import _ from 'lodash';
 // Task component - represents a single todo item
+
 export default class StatsChart extends Component {
 	constructor(props) {
 		super(props)

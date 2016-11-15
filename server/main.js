@@ -11,12 +11,11 @@ import { Customers } from '../imports/api/customers.js';
 import { Browsers } from '../imports/api/browsers.js';
 import { OperatingSystems } from '../imports/api/operatingSystems.js';
 
-let sheetsPath = 'C:\\MeteorTest\\BrowserStats\\sheets'
+const sheetsPath = 'C:\\MeteorTest\\BrowserStats\\sheets'
 Meteor.startup(() => {
 	// When a a file in the sheets directory changes, automatically run script to update DB with new information
 	let wrappedWatch = Meteor.wrapAsync(watch);
 	wrappedWatch(sheetsPath, filename => {
-		BrowserStatistics.remove({})
 		if (filename.startsWith(`${sheetsPath}\\BrowserStatistics`)) {
 			let prod = /(\d+)\.xls$/.exec(filename)[1]
 
@@ -36,6 +35,7 @@ Meteor.startup(() => {
 					browsers.forEach(record => {
 						if (Array.isArray(record.browser.match(/^(\D*)\s(.*)/))) {
 							var [browser, browserName, browserVer] = /^(\D*)\s(.*)/.exec(record.browser)
+							if (browserVer.match(/\d+/)) browserVer = Number(browserVer)
 						} else {
 							var browserName = record.browser
 							var browserVer = 0
