@@ -37,6 +37,7 @@ Meteor.methods({
 			}, {});
 		return out
 	},
+	
 	'browserstatistics.update.filters'(filterCategory, filterValue, previousState) {
 		var state = previousState
 		var foundIndex = _.indexOf(state[filterCategory], filterValue)

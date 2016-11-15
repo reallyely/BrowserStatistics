@@ -1,8 +1,30 @@
 import React from 'react';
+import { findDOMNode } from 'react-dom';
 import _ from 'lodash';
 import Griddle from 'griddle-react';
 import { Sparklines, SparklinesLine, SparklinesSpots, SparklinesReferenceLine } from 'react-sparklines';
+import TransitionGroup from 'react-addons-transition-group';
+import TweenMax from 'gsap';
+
 import './StatsTable.css';
+
+let styles = {
+	filterInput: {
+		fontFamily: "FontAwesome, 'Raleway', sans-serif",
+		fontSize: "0.75em",
+		backgroundColor: "transparent",
+		// borderBottom: "#b6d7e3 0.1em solid",
+		borderBottom: "none",
+		borderTop: "none",
+		borderRight: "none",
+		borderLeft: "none",
+		color: "#b6d7e3",
+		margin: "0em",
+		padding: "0em",
+		paddingLeft: "0.02em",
+		width: "100%",
+	}
+}
 
 class StatsTable extends React.Component {
 	constructor(props) {
@@ -19,7 +41,6 @@ class StatsTable extends React.Component {
 				<Griddle
 					useGriddleStyles={false}
 					results={this.props.data}
-					showFilter={true}
 					showSettings={true}
 					bodyHeight={600}
 					enableInfiniteScroll={true}
@@ -72,62 +93,93 @@ export default StatsTable;
 class HeaderFilter extends React.Component {
 	constructor(props) {
 		super(props)
+		this.state = {
+			hovered: false
+		}
+
+		this.handleHover = this.handleHover.bind(this)
+		// this.showFilter = this.showFilter.bind(this)
+	}
+
+	handleHover(e) {
+		this.setState({hovered: !this.state.hovered})
+	}
+
+  render(){
+    return (
+			<span style={{float:"left", width:"90%"}}
+				onMouseEnter={this.handleHover}
+				onMouseLeave={this.handleHover}
+			>
+		    <span style={{
+						overflow:"hidden",
+						display: "flex",
+						flexDirection: "column",
+						justifyContent: "flex-start",
+						alignItems: "flex-start",
+						// alignContent: "flex-start",
+						alignSelf: "flex-start",
+						width: "100%",
+						transition: "transform 1000ms ease-in-out",
+						transform: "translate(0%)"
+					}}
+					ref={(spanWrapper) => this.spanWrapper = spanWrapper}
+				>
+					<div style={{alignSelf: "flex-start"}}>{this.props.displayName}</div>
+					<TransitionGroup>
+						{this.state.hovered ? <FilterInput /> : ''}
+					</TransitionGroup>
+		    </span>
+			</span>
+    );
+  }
+}
+
+class FilterInput extends React.Component {
+	constructor(props) {
+		super(props)
 		this.textOnClick = this.textOnClick.bind(this)
 		this.filterText = this.filterText.bind(this)
 	}
-  textOnClick(e) {
-    e.stopPropagation();
-  }
+	textOnClick(e) {
+		e.stopPropagation();
+	}
 
-  filterText(e) {
-    this.props.filterByColumn(e.target.value, this.props.columnName)
-  }
+	filterText(e) {
+		this.props.filterByColumn(e.target.value, this.props.columnName)
+	}
 
-  render(){
-		let styles = {
-			headerText: {
-				fontVariant: "small-caps",
-				fontStyle: "italic",
-				fontWeight: "300",
-				fontSize: "1.2em",
-				color: "#D6C0BA",
-			},
-			headerBox: {
-				boxShadow: "0px -5px 10px 2px rgba(60, 34, 68, 0.20)",
-				borderSpacing: "5px",
-				borderRadius: "1px",
-				padding: ".5em",
-				backgroundColor: "#413D45",
-			},
-			filterInput: {
-				fontFamily: "'Raleway', sans-serif",
-				fontSize: "0.5em",
-				backgroundColor: "transparent",
-				borderBottom: "#b6d7e3 0.1em solid",
-				borderTop: "none",
-				borderRight: "none",
-				borderLeft: "none",
-				color: "#b6d7e3",
-				margin: "0em",
-				padding: "0em",
-				width: "100%",
-			}
-		}
-		console.log(this.props);
-    return (
-      <span>
-        <div>{this.props.displayName}</div>
-        <input
+	componentWillEnter (callback) {
+		const el = findDOMNode(this);
+		console.log(el);
+		TweenMax.fromTo(el, 0.5, {delay: 100, css:{height: 0, opacity: 0}}, {css:{height: 25, opacity: 100}, onComplete: callback});
+	}
+
+	componentWillLeave (callback) {
+		const el = findDOMNode(this);
+		TweenMax.fromTo(el, 1, {opacity: 1}, {opacity: 0, onComplete: callback});
+	}
+
+	render() {
+		return (
+			<div
+				key={'uniq'}
+				style={{height:0}}
+			>
+				<input
 					style={styles.filterInput}
 					type='text'
 					onChange={this.filterText}
 					onClick={this.textOnClick}
-					placeholder={<span class="fa fa-search" />}
+					placeholder="&#xf002;"
 				/>
-      </span>
-    );
-  }
+			</div>
+		)
+
+	}
+
 }
+
 
 class MiniGraph extends React.Component {
 	constructor(props) {
@@ -146,7 +198,10 @@ class MiniGraph extends React.Component {
 			return (
 				<div>
 					<Sparklines data={data} height={30} style={{margin: "0px", padding: "0px"}}>
-						 <SparklinesLine color="#413D45" style={{strokeWidth: 1, strokeOpacity: ".75", fill: "#b6d7e3", fillOpacity: ".8"}} />
+						 <SparklinesLine color="#413D45"
+						 	style={{
+								strokeWidth: 1, strokeOpacity: ".75", fill: "#7cc5df", fillOpacity: ".6",
+								backgroundBlendMode: "multiply"}} />
 						 <SparklinesSpots size={4} style={{ stroke: "#413D45", strokeWidth: 1, fill: "transparent" }} />
 					</Sparklines>
 				</div>
