@@ -2,15 +2,9 @@ import React from 'react';
 
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
+import BSButton from './BSButton';
 import _ from 'lodash';
 
-const styles = {
-	default: {
-		margin: '8px'
-	}
-}
-const activeColor = '#2196F3'
 export default class FilterControls extends React.Component {
 	constructor(props) {
 		super(props);
@@ -19,23 +13,40 @@ export default class FilterControls extends React.Component {
 	}
 
 	renderFilters() {
-		console.log(this.props.filters);
+		// console.log(this.props.filters);
 		return (
 			_.keys(this.props.filters).map(
 				(category, i) => (
-					<div key={i}>{category}
-						{
-							this.props.filters[category].map( (value, i) =>
-								<RaisedButton
-									key={i}
-									label={value}
-									onClick={e => this.props.onFilter(category, value)}
-									backgroundColor={
-										_.indexOf(this.props.activeFilters[category], value) >= 0 && activeColor
-									}
-								/>
-							)
-						}
+					<div
+						key={i}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+						}}
+					>
+						<h3 style={{marginBottom: '0.3em',}}>{_.capitalize(category)}</h3>
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								justifyContent: 'flex-start',
+								flexWrap: 'wrap',
+							}}
+						>
+
+							{
+								this.props.filters[category].map( (value, i) =>
+									<BSButton
+										key={i}
+										label={value}
+										onClick={e => this.props.onFilter(category, value)}
+										pressed={
+											_.indexOf(this.props.activeFilters[category], value) >= 0
+										}
+									/>
+								)
+							}
+						</div>
 					</div>
 				)
 			)
@@ -44,14 +55,13 @@ export default class FilterControls extends React.Component {
 
 	render() {
 		return (
-			<Card
-				style={{backgroundColor:''}}>
-				<CardActions>
+			<div
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+				}}>
 					{this.renderFilters()}
-				</CardActions>
-				<CardText>
-				</CardText>
-			</Card>
+			</div>
 		);
 	}
 }

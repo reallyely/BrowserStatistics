@@ -2,10 +2,7 @@ body {
 	font-size: 1.2em;
   font-family: 'Raleway', sans-serif;
 	background: radial-gradient(circle, #D6C0BA 0%,#BEA7A7 100%);
-}
-
-h1, td {
-	color: #413D45;
+	color: #5b5258
 }
 
 .red {
@@ -17,5 +14,16 @@ h1, td {
 }
 
 .teal {
-  background-color: #b6d7e3;
+  background-color: #95DBE5;
+}
+
+.borderLines {
+	color: #867982;
+}
+
+.placeholderDark::-webkit-input-placeholder {
+	color: #5b5258;
+	font-style: italic;
+	font-variant: small-caps;
+	font-weight: 300;
 }

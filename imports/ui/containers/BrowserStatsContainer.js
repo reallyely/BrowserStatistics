@@ -19,10 +19,10 @@ class Stats extends React.Component {
 						columns={['Total']}
 						keys={['total']}
 					/>
-					<StatsTable
-						title="Stats Table"
-						data={this.props.BrowserStatistics}
-					/>
+						<StatsTable
+							title="Stats Table"
+							data={this.props.BrowserStatistics}
+						/>
 				</div>
 			)
 		} else {
@@ -32,18 +32,18 @@ class Stats extends React.Component {
 }
 
 export default createContainer(({filters}) => {
+	console.log(filters);
 	let subscription = Meteor.subscribe('browserstatistics');
 	let loading = !subscription.ready()
 
 	let filter = {}
-	if (filters.browsers.length > 0) {
-		filter = {browser_name: {$in: filters.browsers}}
-	} else {
-		filter = {}
-	}
+	if (filters.browsers.length > 0) filter.browser_name = {$in: filters.browsers}
+	else if (filters.customers.length > 0) filter.customer_id = {$in: filters.customers}
+	else if (filters.prod.length > 0) filter.prod_id = {$in: filters.prod}
+	else filter = {}
 
   return {
-		BrowserStatistics: BrowserStatistics.find(filter, {sort: ["prod_id", "customer_id"]}).fetch(),
+		BrowserStatistics: BrowserStatistics.find(filter, {sort: ["prod_id", "customer_id"], limit: 150}).fetch(),
 		loading,
   };
 }, Stats);

@@ -6,8 +6,9 @@ import _ from 'lodash';
 export const BrowserStatistics = new Mongo.Collection('browserstatistics');
 
 const filterSchema = {
+	prod: 'prod_id',
 	browsers: 'browser_name',
-	// customers: 'customer_id'
+	customers: 'customer_id'
 }
 
 // mutate this to track state for db calls??
@@ -21,7 +22,6 @@ function getFilterValues(data) {
 }
 
 if (Meteor.isServer) {
-  // This code only runs on the server
   Meteor.publish('browserstatistics', (filter) => {
     return BrowserStatistics.find(filterState);
   });
@@ -35,9 +35,10 @@ Meteor.methods({
 				obj[key] = _.uniq(_.map(data, field))
 				return obj
 			}, {});
+
 		return out
 	},
-	
+
 	'browserstatistics.update.filters'(filterCategory, filterValue, previousState) {
 		var state = previousState
 		var foundIndex = _.indexOf(state[filterCategory], filterValue)
@@ -52,6 +53,7 @@ Meteor.methods({
 		console.log(filterState);
 		return state
 	},
+
 	getBrowserData( filter ) {
 		let group = {
 			_id: {

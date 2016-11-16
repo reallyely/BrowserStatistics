@@ -13,7 +13,7 @@ class App extends Component {
 		super(props)
 
 		this.state = {
-			activeFilters: {browsers: [], customers: []}
+			activeFilters: {browsers: [], customers: [], prod: []}
 		}
 		this.handleClick = this.handleClick.bind(this);
 	}
@@ -39,9 +39,9 @@ class App extends Component {
 	}
 
   render() {
+
 			return (
 				<div className="container">
-					<h1>Browser Stats:</h1>
 					<FilterControls
 						filters={this.state.filters}
 						activeFilters={this.state.activeFilters}
@@ -57,7 +57,7 @@ class App extends Component {
 export default createContainer(({params}) => {
 	let subscription = Meteor.subscribe('browserstatistics');
 	let loading = !subscription.ready()
-	let browserStats = BrowserStatistics.find({}, {sort: ["browser_id"]}).fetch()
+	let browserStats = BrowserStatistics.find({}, {sort: ["browser_id"], limit: 150}).fetch()
   return {
 		BrowserStatistics: browserStats,
 		loading,
