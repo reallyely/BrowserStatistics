@@ -5,6 +5,7 @@ import Griddle from 'griddle-react';
 import { Sparklines, SparklinesLine, SparklinesSpots, SparklinesReferenceLine } from 'react-sparklines';
 import TransitionGroup from 'react-addons-transition-group';
 import TweenMax from 'gsap';
+import {RoughEase, Power0} from 'gsap';
 
 import './StatsTable.css';
 
@@ -42,7 +43,7 @@ class StatsTable extends React.Component {
 					useGriddleStyles={false}
 					results={this.props.data}
 					showSettings={true}
-					bodyHeight={600}
+					bodyHeight={550}
 					enableInfiniteScroll={true}
 					useFixedHeader={true}
 					columnMetadata={[
@@ -94,15 +95,26 @@ class HeaderFilter extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			hovered: false
+			hovered: false,
+			hasValue: false,
+			focused: false
 		}
 
 		this.handleHover = this.handleHover.bind(this)
+		this.handleChange = this.handleChange.bind(this)
+		this.handleFocus = this.handleFocus.bind(this)
 		// this.showFilter = this.showFilter.bind(this)
 	}
 
 	handleHover(e) {
 		this.setState({hovered: !this.state.hovered})
+	}
+
+	handleChange(e) {
+		this.setState({hasValue: e.target.value ? true : false})
+	}
+	handleFocus(e) {
+		this.setState({focused: !this.state.focused})
 	}
 
   render(){
@@ -117,7 +129,7 @@ class HeaderFilter extends React.Component {
 						flexDirection: "column",
 						justifyContent: "flex-start",
 						alignItems: "flex-start",
-						// alignContent: "flex-start",
+						alignContent: "flex-start",
 						alignSelf: "flex-start",
 						width: "100%",
 						transition: "transform 1000ms ease-in-out",
@@ -127,7 +139,15 @@ class HeaderFilter extends React.Component {
 				>
 					<div style={{alignSelf: "flex-start"}}>{this.props.displayName}</div>
 					<TransitionGroup>
-						{this.state.hovered ? <FilterInput /> : ''}
+						{this.state.hovered || this.state.hasValue || this.state.focused
+							? <FilterInput
+								handleChange={this.handleChange}
+								handleFocus={this.handleFocus}
+								handleBlur={this.handleFocus}
+								columnName={this.props.columnName}
+								filterByColumn={this.props.filterByColumn}
+								id={this.props.columnName}/>
+							: ''}
 					</TransitionGroup>
 		    </span>
 			</span>
@@ -147,26 +167,41 @@ class FilterInput extends React.Component {
 
 	filterText(e) {
 		this.props.filterByColumn(e.target.value, this.props.columnName)
+		this.props.handleChange(e)
 	}
 
 	componentWillEnter (callback) {
 		const el = findDOMNode(this);
-		console.log(el);
-		TweenMax.fromTo(el, 0.5, {delay: 100, css:{height: 0, opacity: 0}}, {css:{height: 25, opacity: 100}, onComplete: callback});
+		TweenMax.fromTo(el, 0.35,
+			{opacity: 0, height: 0},
+			{opacity: 100, height: 25,
+				ease: Sine.easeOut,
+				onComplete: callback}
+		);
 	}
 
 	componentWillLeave (callback) {
 		const el = findDOMNode(this);
-		TweenMax.fromTo(el, 1, {opacity: 1}, {opacity: 0, onComplete: callback});
+		TweenMax.fromTo(el, 0.35,
+			{height: 25, opacity: 100},
+			{height: 0, opacity:0,
+				delay: 1,
+				ease: Sine.easeOut,
+			 	onComplete: callback
+			}
+		);
 	}
 
 	render() {
 		return (
 			<div
 				key={'uniq'}
-				style={{height:0}}
+				style={{position:'relative'}}
 			>
 				<input
+					onFocus={this.props.handleFocus}
+					onBlur={this.props.handleBlur}
+					id={this.props.id}
 					style={styles.filterInput}
 					type='text'
 					onChange={this.filterText}
